@@ -15,6 +15,11 @@ It should be a reusable module, compatible with React/MobX store usage.
 
 Include a short README or code comment block explaining how your solution works, what libraries you used, and any limitations.
 
+# Preview URL
+
+# [Preview](https://react-paper-js.vercel.app/)
+
+
 # Notes
 
 The demo is uses
@@ -52,10 +57,8 @@ Workflow
 -> Check if the shapes are intersecting using bounding box logic
 -> If they are intersecting, if so perform the boolean operation using paperjs
 -> Create a new shape with the result of the boolean operation
--> Remove the original shapes from the DOM
+-> Remove the original shapes from the MOBX store and DOM Update the store with the new shape
 -> Add the new shape to the DOM
--> Update the MobX store with the new shape
--> Render the new shape in the UI
 
 ```
 
