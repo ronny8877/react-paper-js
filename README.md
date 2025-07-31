@@ -1,70 +1,74 @@
-# React + TypeScript + Vite
+# Porject Prposal:
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Boolean operations (like it works in Figma)
+https://www.youtube.com/watch?v=1IebN9pTulE
 
-Currently, two official plugins are available:
+Task: Implement the four standard Boolean operations
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+Union
+Subtract
+Intersect
+Exclude
+For 2 SVG shapes using TypeScript and suitable for integration into a MobX-based DOM editor.
 
-## Expanding the ESLint configuration
+It should be a reusable module, compatible with React/MobX store usage.
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+Include a short README or code comment block explaining how your solution works, what libraries you used, and any limitations.
 
-```js
-export default tseslint.config([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+# Notes
 
-      // Remove tseslint.configs.recommended and replace with this
-      ...tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      ...tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      ...tseslint.configs.stylisticTypeChecked,
+The demo is uses
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+- MOBX for state management.
+- Styled Components for styling.
+- Paper.js for performing the boolean operations on the shapes.
+- React for UI
+- vite as build tool
+
+It's a rudamentry implementaion of FIGMA like Boolean intersection opreations. But unlike figma it's a DOM based editor.
+
+> # Overview:
+
+When a shape is spawned, it's added to the Dom node as
+
+- This implements a very Simple intersection Logic To
+  check if two shapes are intersecting we check if the bounding boxes of the shapes intersect. If they do intersect we will get the shapes info like size and position and then use paperjs to perform the boolean opreation and create a new shape.
+
+- We only modify the shapes that are selected and are intersecting Even if a shape is selected but not intersecting with any other shape it will not be modified.
+
+- Then we remove the original shapes on which the actions were performed and add the new shape to the DOM.
+
+- This allow us to maintain a simple history of shapes which can be used to undo/redo the operations.
+
+- Modular We can switch the library and the logic used easily currently we use papaer js we pass the shapes to paperjs and return the new shape. If we want to switch to another library we can just change the logic in the `performBooleanOperation` function.
+
+- paper js is pretty efficent and smart at handling the boolean operations. It can scale very well with the number of shapes and the complexity of the shapes.
+
+Workflow
+
+```
+-> Add Shapes to dom canvas node
+-> Select the shapes to perform boolean operations on
+-> Check if the shapes are intersecting using bounding box logic
+-> If they are intersecting, if so perform the boolean operation using paperjs
+-> Create a new shape with the result of the boolean operation
+-> Remove the original shapes from the DOM
+-> Add the new shape to the DOM
+-> Update the MobX store with the new shape
+-> Render the new shape in the UI
+
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+> # Limitation:
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+- Paperjs is not DOM based. So we need to spawn a hidden canvas to use paperjs for the boolean operations. Once the operation.
 
-export default tseslint.config([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
-# react-paper-js
+- Rudimentary Intersection and Bounding Logic :
+
+The Assignment was about Performing boolean opreation on Shapes So i am using a very simple bounding box intersection logic to check if two shapes are intersecting and resize the shape accordingly.
+
+There can be scenarios where the bounding boxes of two shapes intersect but the shapes themselves do not. This is a limitation of the current simple bounding checks implementation.
+
+Currently, as we are allowing the user re-size the shapes, it's the bounding box that is re-szied not the actual SVG shape itself. This can cause an issue where if the bounding box is expanded in a way where if the shape is smaller but bounding box is much more larger the new intersected shape will inherit the size of bounding box causing the new shape to be larger than the original shape.
+
+This can be fixed by re-sizing the SVG itself but it would be more complex and would require additional logic to handle the SVG paths correctly.

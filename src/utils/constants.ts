@@ -1,0 +1,12 @@
+export const CIRCLE_PATH =
+  "M12 2C6.477 2 2 6.477 2 12s4.477 10 10 10 10-4.477 10-10S17.523 2 12 2zM12 20c-4.418 0-8-3.582-8-8s3.582-8 8-8 8 3.582 8 8-3.582 8-8 8z";
+export const RECTANGLE_PATH =
+  "M4 6h16a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2zM4 8v8h16V8H4z";
+export const TRIANGLE_PATH =
+  "M12 2L2 22h20L12 2zM12 4.414l6.586 15.172H5.414L12 4.414z";
+
+export const SHAPE_TYPES = {
+  circle: CIRCLE_PATH,
+  rectangle: RECTANGLE_PATH,
+  triangle: TRIANGLE_PATH,
+} as const;
