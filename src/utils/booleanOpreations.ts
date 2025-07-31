@@ -7,7 +7,7 @@ let paper: any = null;
 export async function initializePaper() {
   try {
     if (!paper) {
-      console.log('Loading paper.js...');
+      console.log('Loading paper.js');
       // Use dynamic import to load paper.js
       paper = await import('paper');
       // Handle both default and named exports
@@ -17,12 +17,11 @@ export async function initializePaper() {
       console.log('Paper.js loaded:', paper);
     }
     
-    // Check if paper is properly imported
     console.log('Paper object:', paper);
     console.log('Paper.setup function:', typeof paper.setup);
     
     if (!paper.project || !paper.project.activeLayer) {
-      console.log('Initializing paper.js...');
+      console.log('Initializing paper.js');
       
       // Create a canvas element for paper.js
       const canvas = document.createElement('canvas');
@@ -38,7 +37,7 @@ export async function initializePaper() {
       console.log('Paper.js already initialized');
     }
   } catch (error) {
-    console.error('Failed to initialize paper.js:', error);
+    console.error('Failed paper.js:', error);
     throw error;
   }
 }
@@ -74,13 +73,28 @@ function shapeToPaperPath(shape: Shape): any {
     );
     const radius = Math.min(shape.size.width, shape.size.height) / 2;
     
-    // Create a high-quality circle with more segments for smoother curves
-    path = new paper.Path.Circle(center, radius);
+    // Create a high-quality circle with many segments for smoother curves
+    // Using more segments to prevent wobbliness in boolean operations
+    const segments = 64; // Much higher than default for smooth curves
+    path = new paper.Path();
     
-    // Ensure smooth curves are preserved
+    for (let i = 0; i < segments; i++) {
+      const angle = (i / segments) * Math.PI * 2;
+      const x = center.x + Math.cos(angle) * radius;
+      const y = center.y + Math.sin(angle) * radius;
+      
+      if (i === 0) {
+        path.moveTo(new paper.Point(x, y));
+      } else {
+        path.lineTo(new paper.Point(x, y));
+      }
+    }
+    path.closePath();
+    
+    // Apply smoothing to make it even more circular
     path.smooth();
     
-    console.log(`Created circle at center (${center.x}, ${center.y}) with radius ${radius}`);
+    console.log(`Created high-quality circle at center (${center.x}, ${center.y}) with radius ${radius} and ${segments} segments`);
   } else if (shape.type === 'rectangle') {
     const rectangle = new paper.Rectangle(
       shape.position.x,
