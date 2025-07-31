@@ -68,7 +68,3 @@ Workflow
 The Assignment was about Performing boolean opreation on Shapes So i am using a very simple bounding box intersection logic to check if two shapes are intersecting and resize the shape accordingly.
 
 There can be scenarios where the bounding boxes of two shapes intersect but the shapes themselves do not. This is a limitation of the current simple bounding checks implementation.
-
-Currently, as we are allowing the user re-size the shapes, it's the bounding box that is re-szied not the actual SVG shape itself. This can cause an issue where if the bounding box is expanded in a way where if the shape is smaller but bounding box is much more larger the new intersected shape will inherit the size of bounding box causing the new shape to be larger than the original shape.
-
-This can be fixed by re-sizing the SVG itself but it would be more complex and would require additional logic to handle the SVG paths correctly.

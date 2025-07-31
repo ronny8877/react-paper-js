@@ -8,7 +8,7 @@ export interface Shape {
   size: { width: number; height: number };
   color: string;
   selected: boolean;
-  pathData?: string; // For complex shapes created by boolean operations
+  pathData: string; // Now required for all shapes
 }
 
 export interface EditorState {
@@ -68,7 +68,7 @@ class AppStore {
     this.saveToHistory();
   }
 
-  // For adding Inital SHapes
+  // For adding Initial Shapes
   addShape(
     type: "circle" | "rectangle" | "triangle",
     position: { x: number; y: number },
@@ -77,7 +77,7 @@ class AppStore {
       id: `${type}-${Date.now()}`,
       type,
       position,
-      pathData: SHAPE_TYPES[type] || "",
+      pathData: SHAPE_TYPES[type],
       size: { width: 100, height: 100 },
       color:
         type === "circle"

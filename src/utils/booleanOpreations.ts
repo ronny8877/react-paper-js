@@ -66,71 +66,9 @@ export function cleanupPaper() {
 function shapeToPaperPath(shape: Shape): any {
   let path: any;
 
-  if (shape.type === "circle") {
-    const center = new paper.Point(
-      shape.position.x + shape.size.width / 2,
-      shape.position.y + shape.size.height / 2,
-    );
-    const radius = Math.min(shape.size.width, shape.size.height) / 2;
-
-    const segments = 64; // Much higher than default for smooth curves
-    path = new paper.Path();
-
-    for (let i = 0; i < segments; i++) {
-      const angle = (i / segments) * Math.PI * 2;
-      const x = center.x + Math.cos(angle) * radius;
-      const y = center.y + Math.sin(angle) * radius;
-
-      if (i === 0) {
-        path.moveTo(new paper.Point(x, y));
-      } else {
-        path.lineTo(new paper.Point(x, y));
-      }
-    }
-    path.closePath();
-
-    // Apply smoothing to make it even more circular
-    path.smooth();
-
-    console.log(
-      `Created high-quality circle at center (${center.x}, ${center.y}) with radius ${radius} and ${segments} segments`,
-    );
-  } else if (shape.type === "rectangle") {
-    const rectangle = new paper.Rectangle(
-      shape.position.x,
-      shape.position.y,
-      shape.size.width,
-      shape.size.height,
-    );
-    path = new paper.Path.Rectangle(rectangle);
-    console.log(
-      `Created rectangle at (${shape.position.x}, ${shape.position.y}) size ${shape.size.width}x${shape.size.height}`,
-    );
-  } else if (shape.type === "triangle") {
-    const triangle = new paper.Path();
-    triangle.moveTo(
-      new paper.Point(
-        shape.position.x + shape.size.width / 2,
-        shape.position.y,
-      ),
-    );
-    triangle.lineTo(
-      new paper.Point(shape.position.x, shape.position.y + shape.size.height),
-    );
-    triangle.lineTo(
-      new paper.Point(
-        shape.position.x + shape.size.width,
-        shape.position.y + shape.size.height,
-      ),
-    );
-    triangle.closePath();
-    path = triangle;
-    console.log(
-      `Created triangle at (${shape.position.x}, ${shape.position.y}) size ${shape.size.width}x${shape.size.height}`,
-    );
-  } else if (shape.type === "path" && shape.pathData) {
+  if (shape.pathData) {
     try {
-      // Create path from the path data
+      // All shapes now have path data, so we can handle them uniformly
       console.log(
         `Creating path from data: ${shape.pathData.substring(0, 100)}...`,
       );
@@ -151,11 +89,16 @@ function shapeToPaperPath(shape: Shape): any {
         path = new paper.Path(shape.pathData);
       }
 
-      // The path data is relative to (0,0), so we need to translate it to the shape's position
+      // First scale the path to match the shape's size (path data is normalized to 100x100)
+      const scaleX = shape.size.width / 100;
+      const scaleY = shape.size.height / 100;
+      path.scale(scaleX, scaleY, new paper.Point(0, 0)); // Scale from origin
+
+      // Then translate the path to the shape's position
       path.translate(new paper.Point(shape.position.x, shape.position.y));
 
       console.log(
-        `Created path from data, translated to (${shape.position.x}, ${shape.position.y})`,
+        `Created path from data, scaled by (${scaleX}, ${scaleY}) and translated to (${shape.position.x}, ${shape.position.y})`,
       );
     } catch (error) {
       console.error("Failed to create path from pathData:", error);
@@ -170,7 +113,7 @@ function shapeToPaperPath(shape: Shape): any {
       path = new paper.Path.Rectangle(rectangle);
     }
   } else {
-    // Fallback to rectangle
+    // Fallback to rectangle for shapes without path data
     const rectangle = new paper.Rectangle(
       shape.position.x,
       shape.position.y,
@@ -298,23 +241,30 @@ export async function performBooleanOperation(
     // Don't simplify - preserve the original shape quality
     // resultPath.simplify(); // This was causing the rounding issue
 
-    // Move the path to origin (0,0) and get relative path data
-    const translatedPath = resultPath.clone();
-    translatedPath.translate(new paper.Point(-bounds.x, -bounds.y));
+    // Clone the result path and move it to origin for normalization
+    const normalizedPath = resultPath.clone();
+
+    // Translate to origin
+    normalizedPath.translate(new paper.Point(-bounds.x, -bounds.y));
+
+    // Scale to normalize to 100x100 units, but maintain aspect ratio
+    const scaleX = 100 / bounds.width;
+    const scaleY = 100 / bounds.height;
+    normalizedPath.scale(scaleX, scaleY, new paper.Point(0, 0));
 
     // Get the path data - handle compound paths properly
     let pathData: string;
-    if (translatedPath.children && translatedPath.children.length > 0) {
+    if (normalizedPath.children && normalizedPath.children.length > 0) {
       // Handle compound path (multiple sub-paths)
-      pathData = translatedPath.children
+      pathData = normalizedPath.children
         .map((child: any) => child.pathData)
         .join(" ");
     } else {
       // Simple path
-      pathData = translatedPath.pathData;
+      pathData = normalizedPath.pathData;
     }
 
-    console.log("Generated path data:", pathData);
+    console.log("Generated normalized path data:", pathData);
     console.log("Result bounds:", bounds);
 
     if (!pathData || pathData.length === 0) {
@@ -322,12 +272,12 @@ export async function performBooleanOperation(
       return null;
     }
 
-    // Create the new shape
+    // Create the new shape with correct positioning
     const newShape: Shape = {
       id: `${operation}-${Date.now()}`,
       type: "path",
-      position: { x: bounds.x, y: bounds.y },
-      size: { width: bounds.width, height: bounds.height },
+      position: { x: bounds.x, y: bounds.y }, // Use the actual bounds position
+      size: { width: bounds.width, height: bounds.height }, // Use the actual bounds size
       color: fillColor,
       selected: false,
       pathData: pathData,
@@ -338,7 +288,7 @@ export async function performBooleanOperation(
     // Clean up all paths
     paths.forEach((path) => path.remove());
     resultPath.remove();
-    translatedPath.remove();
+    normalizedPath.remove();
 
     return newShape;
   } catch (error) {
