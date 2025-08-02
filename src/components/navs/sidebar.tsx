@@ -6,31 +6,30 @@ import { useCallback, useState } from "react";
 import { Divider } from "../misc/divier";
 import {
   IconCircle,
-  IconJoinBevel,
   IconLayersIntersect,
   IconMenu2,
   IconMinus,
   IconPlus,
   IconPolygon,
   IconSquare,
-  IconSquare9,
-  IconSquareRoundedLetterT,
   IconTriangle,
 } from "@tabler/icons-react";
 import { appStore, type BooleanOperation } from "../../store/app-store";
 import { observer } from "mobx-react-lite";
 
-const SideBarContainer = styled.nav<{
+export const SideBarContainer = styled.nav<{
   width: string;
   variant?: "floating" | "default";
 }>`
+  position: relative;
   width: ${({ width }) => width};
   height: ${({ variant }) =>
-    variant === "floating" ? "calc(100vh - 100px)" : "100vh"};
+    variant === "floating" ? "calc(100vh - 100px)" : "full"};
   background-color: #fff;
-  border: 1px solid #d0d0d0;
-  box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
-  padding: 16px;
+  /* border: 1px solid #d0d0d0; */
+  box-shadow: ${({ variant }) =>
+    variant === "floating" ? "0 4px 6px rgba(0, 0, 0, 0.1)" : "none"};
+  padding: ${({ variant }) => (variant === "floating" ? "20px" : "10px")};
   border-radius: ${({ variant }) => (variant === "floating" ? "16px" : "0")};
   margin-top: ${({ variant }) => (variant === "floating" ? "20px" : "0")};
   margin-left: ${({ variant }) => (variant === "floating" ? "10px" : "0")};
@@ -42,7 +41,7 @@ const SideBarContainer = styled.nav<{
   svg {
     width: 24px;
     height: 24px;
-    fill: #4a5568;
+    /* fill: #4a5568; */
   }
 `;
 
@@ -68,7 +67,7 @@ export const NavHeader = styled.div<{ open: boolean }>`
   svg {
     width: 24px;
     height: 24px;
-    fill: #4a5568;
+    /* fill: #4a5568; */
   }
 `;
 
@@ -77,12 +76,13 @@ export const SideBarTitle = styled(Title)<{ open: boolean }>`
   /* TThis is a valid css property yet the extension says otherwise */
   text-wrap: nowrap;
 `;
-export const SideBarTrigger = styled(Button)`
+export const SideBarTrigger = styled(Button)<{ open?: boolean }>`
   width: auto;
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 8px 20px;
+  padding: 8 20;
+  margin: auto;
   background-color: #000;
   color: #fff;
   cursor: pointer;
@@ -93,7 +93,7 @@ export const SideBarTrigger = styled(Button)`
   svg {
     width: 20px;
     height: 20px;
-    fill: #4a5568;
+    /* fill: #4a5568; */
   }
 `;
 
@@ -114,7 +114,7 @@ export const SideBarButton = styled(IconButton)<{ isOpen: boolean }>`
     margin: 0;
     width: ${({ isOpen }) => (isOpen ? "24px" : "28px")};
     height: ${({ isOpen }) => (isOpen ? "24px" : "28px")};
-    fill: #4a5568;
+    /* fill: #4a5568; */
     transition:
       width 0.2s ease,
       height 0.2s ease;
@@ -134,6 +134,15 @@ export const SideBarGroup = styled.div`
   padding: 8px;
 `;
 
+export const SideBarFooter = styled(SideBarGroup)`
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  width: 100%;
+`;
+
+//Sidebar
 export default observer(function AppSidebar() {
   //For smoother animations
   const [animationParent] = useAutoAnimate();
@@ -154,16 +163,23 @@ export default observer(function AppSidebar() {
     [],
   );
 
+  const sideBarWidth =
+    appStore.sideBarConfig.variant === "floating" ? "300px" : "350px";
+  const collapseWidth =
+    appStore.sideBarConfig.variant === "floating" ? "60px" : "80px";
   return (
     <SideBarContainer
-      variant="floating"
-      width={sideBarOpen ? "250px" : "60px"}
+      variant={appStore.sideBarConfig.variant}
+      width={sideBarOpen ? sideBarWidth : collapseWidth}
       ref={animationParent}
     >
       <NavHeader open={sideBarOpen}>
         {sideBarOpen && <IconPolygon />}
         <SideBarTitle open={sideBarOpen}>Poly Editor</SideBarTitle>
-        <SideBarTrigger onClick={() => setSideBarOpen(!sideBarOpen)}>
+        <SideBarTrigger
+          open={sideBarOpen}
+          onClick={() => setSideBarOpen(!sideBarOpen)}
+        >
           <IconMenu2 />
         </SideBarTrigger>
       </NavHeader>

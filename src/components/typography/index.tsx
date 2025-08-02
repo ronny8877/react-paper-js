@@ -15,3 +15,11 @@ export const H2 = styled.h2<{ align?: string }>`
   margin: 0;
   text-align: ${(props) => props.align || "left"};
 `;
+
+export const P = styled.p`
+  font-size: 16px;
+  font-weight: 400;
+  color: #4a5568;
+  margin: 0;
+  line-height: 1.5;
+`;

@@ -3,34 +3,16 @@ import { observer } from "mobx-react-lite";
 import { appStore, type BooleanOperation } from "../store/app-store";
 import {
   EditorContainer,
-  Sidebar,
-  SidebarSection,
-  ShapeGrid,
-  ShapeButton,
-  BooleanOperationsGrid,
-  BooleanButton,
-  HistoryControls,
-  HistoryButton,
   CanvasShape,
   StatusBar,
   IntersectionIndicator,
   SelectionBox,
   ResizeHandle,
 } from "../styled";
-import {
-  CircleIcon,
-  RectangleIcon,
-  TriangleIcon,
-  UndoIcon,
-  RedoIcon,
-  IntersectIcon,
-  UnionIcon,
-  SubtractIcon,
-  DifferenceIcon,
-} from "./icons";
-import { FloatingToolNav } from "./navs/floating-tool-nav";
+
 import AppSidebar from "./navs/sidebar";
 import { Canvas } from "./ui/canvas";
+import UtilityWindow from "./navs/utility-window";
 
 export const Editor = observer(() => {
   const [dragState, setDragState] = useState<{
@@ -370,6 +352,13 @@ export const Editor = observer(() => {
     );
   };
 
+  const clearSelection = useCallback((e: React.MouseEvent) => {
+    e.stopPropagation();
+    const target = e.target as HTMLElement;
+    // if(target && target.id === "canvas")
+    //  appStore.clearSelection();
+  }, []);
+
   const intersectingShapes = appStore.intersectingShapes;
   const hasIntersections = intersectingShapes.length > 0;
 
@@ -377,7 +366,9 @@ export const Editor = observer(() => {
     <EditorContainer>
       <AppSidebar />
       <Canvas
-        grid={true}
+        id="canvas"
+        onClick={clearSelection}
+        grid={appStore.canvasOptions.showGrid}
         ref={canvasRef}
         onMouseDown={handleCanvasMouseDown}
         onMouseMove={handleMouseMove}
@@ -421,7 +412,7 @@ export const Editor = observer(() => {
           </button>
         </StatusBar>
       </Canvas>
-      <FloatingToolNav />
+      <UtilityWindow />
     </EditorContainer>
   );
 });

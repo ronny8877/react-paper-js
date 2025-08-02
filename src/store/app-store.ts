@@ -22,6 +22,23 @@ export type BooleanOperation =
   | "subtract"
   | "difference";
 
+export type SideBarConfig = {
+  variant: "default" | "floating";
+};
+
+export const initalShapeColors = [
+  "#3B82F6",
+  "#EF4444",
+  "#10B981",
+  "#F59E0B",
+  "#8B5CF6",
+  "#EC4899",
+  "#6366F1",
+  "#F472B6",
+  "#0EA5E9",
+  "#F97316",
+];
+
 class AppStore {
   // Editor state
   shapes: Shape[] = [];
@@ -29,7 +46,12 @@ class AppStore {
   history: EditorState[] = [];
   currentHistoryIndex: number = -1;
   draggedShape: string | null = null;
-
+  sideBarConfig: SideBarConfig = { variant: "floating" };
+  canvasOptions: {
+    showGrid: boolean;
+  } = {
+    showGrid: false,
+  };
   // Selection box state
   selectionBox: {
     isActive: boolean;
@@ -79,12 +101,7 @@ class AppStore {
       position,
       pathData: SHAPE_TYPES[type],
       size: { width: 100, height: 100 },
-      color:
-        type === "circle"
-          ? "#3B82F6"
-          : type === "rectangle"
-            ? "#EF4444"
-            : "#10B981",
+      color: initalShapeColors[this.shapes.length % initalShapeColors.length],
       selected: false,
     };
 
@@ -92,6 +109,27 @@ class AppStore {
     this.saveToHistory();
   }
 
+  setShapeColor(shapeId: string, color: string) {
+    const shape = this.shapes.find((s) => s.id === shapeId);
+    if (shape) {
+      shape.color = color;
+      this.saveToHistory();
+    }
+  }
+
+  updateSelectedShapeColor(color: string) {
+    this.selectedShapes.forEach((shapeId) => {
+      this.setShapeColor(shapeId, color);
+    });
+  }
+
+  setSideBarConfig(config: Partial<SideBarConfig>) {
+    this.sideBarConfig = { ...this.sideBarConfig, ...config };
+  }
+
+  toggleGrid() {
+    this.canvasOptions.showGrid = !this.canvasOptions.showGrid;
+  }
   selectShape(shapeId: string, multiSelect: boolean = false) {
     if (!multiSelect) {
       this.shapes.forEach((shape) => (shape.selected = false));
@@ -427,6 +465,13 @@ class AppStore {
         }, 1000);
       });
     }
+  }
+
+  //clearing Selection
+  clearSelection() {
+    // alert("Clearing selection");
+    this.shapes.forEach((shape) => (shape.selected = false));
+    this.selectedShapes = [];
   }
 
   // History management
