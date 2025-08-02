@@ -11,7 +11,6 @@ import {
   BooleanButton,
   HistoryControls,
   HistoryButton,
-  Canvas,
   CanvasShape,
   StatusBar,
   IntersectionIndicator,
@@ -29,6 +28,9 @@ import {
   SubtractIcon,
   DifferenceIcon,
 } from "./icons";
+import { FloatingToolNav } from "./navs/floating-tool-nav";
+import AppSidebar from "./navs/sidebar";
+import { Canvas } from "./ui/canvas";
 
 export const Editor = observer(() => {
   const [dragState, setDragState] = useState<{
@@ -50,19 +52,6 @@ export const Editor = observer(() => {
   });
 
   const canvasRef = useRef<HTMLDivElement>(null);
-
-  const handleAddShape = useCallback(
-    (type: "circle" | "rectangle" | "triangle") => {
-      // Add shape at center of canvas
-      const canvasRect = canvasRef.current?.getBoundingClientRect();
-      if (canvasRect) {
-        const centerX = canvasRect.width / 2 - 50; // 50 is half of shape size
-        const centerY = canvasRect.height / 2 - 50;
-        appStore.addShape(type, { x: centerX, y: centerY });
-      }
-    },
-    [],
-  );
 
   const handleCanvasMouseDown = useCallback((e: React.MouseEvent) => {
     if (e.target === e.currentTarget) {
@@ -386,75 +375,9 @@ export const Editor = observer(() => {
 
   return (
     <EditorContainer>
-      <Sidebar>
-        <SidebarSection>
-          <h3>Shapes</h3>
-          <ShapeGrid>
-            <ShapeButton onClick={() => handleAddShape("circle")}>
-              <CircleIcon size={32} />
-              <span>Circle</span>
-            </ShapeButton>
-            <ShapeButton onClick={() => handleAddShape("rectangle")}>
-              <RectangleIcon size={32} />
-              <span>Rectangle</span>
-            </ShapeButton>
-            <ShapeButton onClick={() => handleAddShape("triangle")}>
-              <TriangleIcon size={32} />
-              <span>Triangle</span>
-            </ShapeButton>
-          </ShapeGrid>
-        </SidebarSection>
-
-        <SidebarSection>
-          <h3>Boolean Operations</h3>
-          <BooleanOperationsGrid>
-            <BooleanButton
-              disabled={!appStore.canPerformBooleanOperations}
-              onClick={() => handleBooleanOperation("union")}
-            >
-              <UnionIcon /> Union
-            </BooleanButton>
-            <BooleanButton
-              disabled={!appStore.canPerformBooleanOperations}
-              onClick={() => handleBooleanOperation("intersect")}
-            >
-              <IntersectIcon /> Intersect
-            </BooleanButton>
-            <BooleanButton
-              disabled={!appStore.canPerformBooleanOperations}
-              onClick={() => handleBooleanOperation("subtract")}
-            >
-              <SubtractIcon /> Subtract
-            </BooleanButton>
-            <BooleanButton
-              disabled={!appStore.canPerformBooleanOperations}
-              onClick={() => handleBooleanOperation("difference")}
-            >
-              <DifferenceIcon /> Difference
-            </BooleanButton>
-          </BooleanOperationsGrid>
-        </SidebarSection>
-
-        <SidebarSection>
-          <h3>History</h3>
-          <HistoryControls>
-            <HistoryButton
-              disabled={!appStore.canUndo}
-              onClick={() => appStore.undo()}
-            >
-              <UndoIcon /> Undo
-            </HistoryButton>
-            <HistoryButton
-              disabled={!appStore.canRedo}
-              onClick={() => appStore.redo()}
-            >
-              <RedoIcon /> Redo
-            </HistoryButton>
-          </HistoryControls>
-        </SidebarSection>
-      </Sidebar>
-
+      <AppSidebar />
       <Canvas
+        grid={true}
         ref={canvasRef}
         onMouseDown={handleCanvasMouseDown}
         onMouseMove={handleMouseMove}
@@ -498,6 +421,7 @@ export const Editor = observer(() => {
           </button>
         </StatusBar>
       </Canvas>
+      <FloatingToolNav />
     </EditorContainer>
   );
 });

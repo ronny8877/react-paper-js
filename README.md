@@ -19,7 +19,6 @@ Include a short README or code comment block explaining how your solution works,
 
 # [Preview](https://react-paper-js.vercel.app/)
 
-
 # Notes
 
 The demo is uses

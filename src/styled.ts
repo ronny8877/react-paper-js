@@ -3,9 +3,10 @@ import styled from "styled-components";
 export const EditorContainer = styled.div`
   display: flex;
   height: 100vh;
+  background: #f4f4f4;
+  gap: 20px;
   font-family:
     -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", sans-serif;
-  background: #f8fafc;
 `;
 
 export const Sidebar = styled.div`
@@ -123,7 +124,7 @@ export const HistoryButton = styled.button<{ disabled?: boolean }>`
 export const Canvas = styled.div`
   flex: 1;
   position: relative;
-  background: #2d2a2e;
+  background: #fff;
   overflow: hidden;
   cursor: crosshair;
 `;
