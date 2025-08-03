@@ -1,4 +1,4 @@
-import type { Shape, BooleanOperation } from "../store/app-store";
+import type { Shape, BooleanOperation } from "../store/editor-store";
 
 // Dynamic import for paper.js
 let paper: any = null;
@@ -16,9 +16,6 @@ export async function initializePaper() {
       }
       console.log("Paper.js loaded:", paper);
     }
-
-    console.log("Paper object:", paper);
-    console.log("Paper.setup function:", typeof paper.setup);
 
     if (!paper.project || !paper.project.activeLayer) {
       console.log("Initializing paper.js");
@@ -55,8 +52,6 @@ export function cleanupPaper() {
     if (canvas) {
       canvas.remove();
     }
-
-    console.log("Paper.js cleaned up");
   } catch (error) {
     console.error("Error cleaning up paper.js:", error);
   }

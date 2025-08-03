@@ -1,18 +1,17 @@
 import React, { useCallback, useRef, useState } from "react";
 import { observer } from "mobx-react-lite";
-import { appStore, type BooleanOperation } from "../store/app-store";
-import {
-  EditorContainer,
-  CanvasShape,
-  StatusBar,
-  IntersectionIndicator,
-  SelectionBox,
-  ResizeHandle,
-} from "../styled";
-
+import { appStore } from "../store/app-store";
 import AppSidebar from "./navs/sidebar";
-import { Canvas } from "./ui/canvas";
+import {
+  Canvas,
+  CanvasShape,
+  EditorContainer,
+  ResizeHandle,
+  SelectionBox,
+} from "./ui/canvas";
 import UtilityWindow from "./navs/utility-window";
+import { AppTitle } from "./ui/typography";
+import type { Shape } from "../store/editor-store";
 
 export const Editor = observer(() => {
   const [dragState, setDragState] = useState<{
@@ -46,7 +45,7 @@ export const Editor = observer(() => {
 
       console.log("Canvas mouse down at:", canvasX, canvasY);
 
-      appStore.startSelectionBox(canvasX, canvasY);
+      appStore.editorStore.startSelectionBox(canvasX, canvasY);
       setMouseState({
         isSelecting: true,
         startPos: { x: canvasX, y: canvasY },
@@ -61,18 +60,21 @@ export const Editor = observer(() => {
       e.stopPropagation();
 
       // Cancel any active selection box
-      appStore.cancelSelectionBox();
+      appStore.editorStore.cancelSelectionBox();
 
-      const shape = appStore.shapes.find((s) => s.id === shapeId);
+      const shape = appStore.editorStore.shapes.find((s) => s.id === shapeId);
       if (!shape) return;
 
       // Select the shape (no longer support multi-select with Ctrl)
       if (!shape.selected) {
         // Deselect all other shapes first
-        appStore.shapes.forEach((s) => (s.selected = false));
-        appStore.selectedShapes.splice(0, appStore.selectedShapes.length);
+        appStore.editorStore.shapes.forEach((s) => (s.selected = false));
+        appStore.editorStore.selectedShapes.splice(
+          0,
+          appStore.editorStore.selectedShapes.length,
+        );
         // Then select this shape
-        appStore.selectShape(shapeId, false);
+        appStore.editorStore.selectShape(shapeId, false);
       }
 
       // Calculate offset relative to canvas
@@ -112,7 +114,7 @@ export const Editor = observer(() => {
       e.stopPropagation();
 
       // Cancel any active selection box
-      appStore.cancelSelectionBox();
+      appStore.editorStore.cancelSelectionBox();
 
       const canvasRect = canvasRef.current?.getBoundingClientRect();
       if (!canvasRect) return;
@@ -120,7 +122,7 @@ export const Editor = observer(() => {
       const canvasX = e.clientX - canvasRect.left;
       const canvasY = e.clientY - canvasRect.top;
 
-      appStore.startResize(shapeId, handle);
+      appStore.editorStore.startResize(shapeId, handle);
       setMouseState({
         isSelecting: false,
         startPos: { x: canvasX, y: canvasY },
@@ -140,12 +142,12 @@ export const Editor = observer(() => {
       const canvasY = e.clientY - canvasRect.top;
 
       if (
-        appStore.selectionBox.isActive &&
+        appStore.editorStore.selectionBox.isActive &&
         !dragState.isDragging &&
-        !appStore.resizeState.isResizing
+        !appStore.editorStore.resizeState.isResizing
       ) {
         // Update selection box
-        appStore.updateSelectionBox(canvasX, canvasY);
+        appStore.editorStore.updateSelectionBox(canvasX, canvasY);
       } else if (dragState.isDragging && dragState.shapeId) {
         // Handle shape dragging
         const newPosition = {
@@ -163,12 +165,12 @@ export const Editor = observer(() => {
           Math.min(newPosition.y, canvasRect.height - 100),
         );
 
-        appStore.moveShape(dragState.shapeId, newPosition);
-      } else if (appStore.resizeState.isResizing) {
+        appStore.editorStore.moveShape(dragState.shapeId, newPosition);
+      } else if (appStore.editorStore.resizeState.isResizing) {
         // Handle shape resizing
         const deltaX = canvasX - mouseState.startPos.x;
         const deltaY = canvasY - mouseState.startPos.y;
-        appStore.updateResize(deltaX, deltaY);
+        appStore.editorStore.updateResize(deltaX, deltaY);
       }
     },
     [dragState, mouseState],
@@ -176,14 +178,14 @@ export const Editor = observer(() => {
 
   const handleMouseUp = useCallback(
     (e: React.MouseEvent) => {
-      const wasSelecting = appStore.selectionBox.isActive;
+      const wasSelecting = appStore.editorStore.selectionBox.isActive;
       const wasDragging = dragState.isDragging;
-      const wasResizing = appStore.resizeState.isResizing;
+      const wasResizing = appStore.editorStore.resizeState.isResizing;
       const clickDuration = Date.now() - mouseState.mouseDownTime;
 
       if (wasSelecting) {
         console.log("Finishing selection box");
-        appStore.finishSelectionBox();
+        appStore.editorStore.finishSelectionBox();
         setMouseState({
           isSelecting: false,
           startPos: { x: 0, y: 0 },
@@ -191,14 +193,14 @@ export const Editor = observer(() => {
           mouseDownTime: 0,
         });
       } else if (wasDragging) {
-        appStore.saveToHistory();
+        appStore.editorStore.saveToHistory();
         setDragState({
           isDragging: false,
           shapeId: null,
           offset: { x: 0, y: 0 },
         });
       } else if (wasResizing) {
-        appStore.finishResize();
+        appStore.editorStore.finishResize();
       } else if (
         e.target === e.currentTarget &&
         clickDuration < 200 &&
@@ -207,8 +209,13 @@ export const Editor = observer(() => {
       ) {
         // Simple click on empty canvas - deselect all
         console.log("Simple click - deselecting all");
-        appStore.shapes.forEach((shape) => (shape.selected = false));
-        appStore.selectedShapes.splice(0, appStore.selectedShapes.length);
+        appStore.editorStore.shapes.forEach(
+          (shape) => (shape.selected = false),
+        );
+        appStore.editorStore.selectedShapes.splice(
+          0,
+          appStore.editorStore.selectedShapes.length,
+        );
       }
 
       // Reset mouse state
@@ -221,53 +228,7 @@ export const Editor = observer(() => {
     [dragState, mouseState],
   );
 
-  const handleBooleanOperation = useCallback(
-    async (operation: BooleanOperation) => {
-      await appStore.performBooleanOperation(operation);
-    },
-    [],
-  );
-
-  const handleKeyDown = useCallback((e: KeyboardEvent) => {
-    if (e.ctrlKey || e.metaKey) {
-      switch (e.key) {
-        case "z":
-          e.preventDefault();
-          if (e.shiftKey) {
-            appStore.redo();
-          } else {
-            appStore.undo();
-          }
-          break;
-        case "y":
-          e.preventDefault();
-          appStore.redo();
-          break;
-      }
-    }
-
-    // Handle delete key without modifiers
-    if (e.key === "Delete" || e.key === "Backspace") {
-      e.preventDefault();
-      appStore.deleteSelectedShapes();
-    }
-  }, []);
-
-  // Add keyboard listeners and initialize paper.js
-  React.useEffect(() => {
-    document.addEventListener("keydown", handleKeyDown);
-
-    // Initialize paper.js
-    import("../utils/booleanOpreations").then(({ initializePaper }) => {
-      initializePaper().catch((error) => {
-        console.error("Failed to initialize paper.js:", error);
-      });
-    });
-
-    return () => document.removeEventListener("keydown", handleKeyDown);
-  }, [handleKeyDown]);
-
-  const renderShape = (shape: any) => {
+  const renderShape = (shape: Shape) => {
     const isBeingDragged =
       dragState.isDragging && dragState.shapeId === shape.id;
     const isSelected = shape.selected;
@@ -285,7 +246,6 @@ export const Editor = observer(() => {
         }}
         onMouseDown={(e) => handleShapeMouseDown(e, shape.id)}
       >
-        {/* All shapes now use path data uniformly */}
         <svg
           width="100%"
           height="100%"
@@ -352,66 +312,32 @@ export const Editor = observer(() => {
     );
   };
 
-  const clearSelection = useCallback((e: React.MouseEvent) => {
-    e.stopPropagation();
-    const target = e.target as HTMLElement;
-    // if(target && target.id === "canvas")
-    //  appStore.clearSelection();
-  }, []);
-
-  const intersectingShapes = appStore.intersectingShapes;
-  const hasIntersections = intersectingShapes.length > 0;
-
   return (
     <EditorContainer>
       <AppSidebar />
-      <Canvas
-        id="canvas"
-        onClick={clearSelection}
-        grid={appStore.canvasOptions.showGrid}
-        ref={canvasRef}
-        onMouseDown={handleCanvasMouseDown}
-        onMouseMove={handleMouseMove}
-        onMouseUp={handleMouseUp}
-        onMouseLeave={handleMouseUp}
-      >
-        {appStore.shapes.map(renderShape)}
+      <div style={{ width: "100%", height: "100%", overflow: "hidden" }}>
+        <AppTitle align="center">React Paper \^o^/ </AppTitle>
+        <Canvas
+          id="canvas"
+          grid={appStore.editorStore.canvasOptions.showGrid}
+          ref={canvasRef}
+          onMouseDown={handleCanvasMouseDown}
+          onMouseMove={handleMouseMove}
+          onMouseUp={handleMouseUp}
+          onMouseLeave={handleMouseUp}
+        >
+          {appStore.editorStore.shapes.map(renderShape)}
 
-        {/* Selection box */}
-        <SelectionBox
-          isActive={appStore.selectionBox.isActive}
-          startX={appStore.selectionBox.startX}
-          startY={appStore.selectionBox.startY}
-          endX={appStore.selectionBox.endX}
-          endY={appStore.selectionBox.endY}
-        />
-
-        <IntersectionIndicator visible={hasIntersections}>
-          ⚠️ Intersecting shapes detected
-        </IntersectionIndicator>
-
-        <StatusBar>
-          <span>Shapes: {appStore.shapes.length}</span>
-          <span>Selected: {appStore.selectedShapes.length}</span>
-          <span>
-            History: {appStore.currentHistoryIndex + 1}/
-            {appStore.history.length}
-          </span>
-          {hasIntersections && (
-            <span style={{ color: "#ffd700" }}>
-              ⚠️ {intersectingShapes.length} shapes intersecting - Boolean
-              operations available
-            </span>
-          )}
-          <span style={{ color: "#a0aec0", fontSize: "11px" }}>
-            Drag: Select area | Click shape: Select | Resize handles when
-            selected | Delete: Remove | Ctrl+Z/Y: Undo/Redo
-          </span>
-          <button onClick={() => console.log(appStore.shapes)}>
-            Log Shapes
-          </button>
-        </StatusBar>
-      </Canvas>
+          {/* Selection box */}
+          <SelectionBox
+            isActive={appStore.editorStore.selectionBox.isActive}
+            startX={appStore.editorStore.selectionBox.startX}
+            startY={appStore.editorStore.selectionBox.startY}
+            endX={appStore.editorStore.selectionBox.endX}
+            endY={appStore.editorStore.selectionBox.endY}
+          />
+        </Canvas>
+      </div>
       <UtilityWindow />
     </EditorContainer>
   );

@@ -23,3 +23,13 @@ export const P = styled.p`
   margin: 0;
   line-height: 1.5;
 `;
+
+export const AppTitle = styled(Title)`
+  background: #fef9fa;
+  width: 100%;
+  margin-top: 8px;
+  padding: 16px 0px;
+  /* box-shadow: 0 2px 4px rgba(0,0,0,0.1); */
+  border-bottom: 1px solid #eee;
+  border-radius: 12px;
+`;

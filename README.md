@@ -70,3 +70,9 @@ Workflow
 The Assignment was about Performing boolean opreation on Shapes So i am using a very simple bounding box intersection logic to check if two shapes are intersecting and resize the shape accordingly.
 
 There can be scenarios where the bounding boxes of two shapes intersect but the shapes themselves do not. This is a limitation of the current simple bounding checks implementation.
+
+> # Pros
+>
+> Paper.js is a powerful library for vector graphics and it handles complex shapes and boolean operations efficiently. It can handle a wide range of shapes and operations, making it suitable for this task.
+
+- The implementation is modular and can be easily extended to support more complex shapes or operations in the future.
