@@ -154,8 +154,7 @@ export default observer(function UtilityWindow() {
               Shapes ({appStore.editorStore.shapes.length}){" "}
             </SideBarLabel>
             <P>
-              Intersecting Shapes:{" "}
-              {appStore.editorStore.intersectingShapes.length}
+              Intersecting Shapes: {/* {appStore.editorStore.shapes..length} */}
             </P>
             <P>Selected Shapes: {appStore.editorStore.selectedShapes.length}</P>
           </SideBarGroup>

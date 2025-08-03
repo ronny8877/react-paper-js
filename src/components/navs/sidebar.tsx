@@ -12,7 +12,7 @@ import {
   IconTree,
   IconTriangle,
 } from "@tabler/icons-react";
-import { type BooleanOperation } from "../../store/editor-store";
+import { type BooleanOperation } from "../../utils/booleanOpreations";
 import { observer } from "mobx-react-lite";
 import {
   NavHeader,

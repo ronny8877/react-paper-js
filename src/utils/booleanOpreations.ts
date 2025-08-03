@@ -1,4 +1,10 @@
-import type { Shape, BooleanOperation } from "../store/editor-store";
+import type { Shape } from "../store/editor-store";
+
+export type BooleanOperation =
+  | "intersect"
+  | "union"
+  | "subtract"
+  | "difference";
 
 // Dynamic import for paper.js
 let paper: any = null;
