@@ -125,7 +125,7 @@ export default observer(function UtilityWindow() {
         )}
 
         {appStore.editorStore.selectedShapes.length <= 0 && (
-          <SideBarGroup>
+          <SideBarGroup style={{ maxHeight: "340px", overflowY: "auto" }}>
             <Divider />
             <SideBarLabel isOpen={open}>Saved/Items</SideBarLabel>
             {/* <Divider/> */}
@@ -153,9 +153,7 @@ export default observer(function UtilityWindow() {
             <SideBarLabel isOpen={open}>
               Shapes ({appStore.editorStore.shapes.length}){" "}
             </SideBarLabel>
-            <P>
-              Intersecting Shapes: {/* {appStore.editorStore.shapes..length} */}
-            </P>
+            <P>Total Shapes: {appStore.editorStore.shapes.length}</P>
             <P>Selected Shapes: {appStore.editorStore.selectedShapes.length}</P>
           </SideBarGroup>
         )}
