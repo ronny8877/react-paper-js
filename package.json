@@ -11,6 +11,8 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@formkit/auto-animate": "^0.8.2",
+    "@tabler/icons-react": "^3.34.1",
     "@types/paper": "^0.11.14",
     "mobx-react-lite": "^4.1.0",
     "paper": "^0.12.18",

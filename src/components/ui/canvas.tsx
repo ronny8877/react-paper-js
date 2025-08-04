@@ -1,131 +1,33 @@
 import styled from "styled-components";
 
+export const Canvas = styled.div<{ grid?: boolean }>`
+  position: relative;
+  width: 100%;
+  height: 100%;
+  background: #ffffff;
+  overflow: hidden;
+  border-radius: 16px;
+  height: calc(100vh - 106px);
+  margin-top: 8px;
+
+  ${({ grid }) =>
+    grid &&
+    `
+    background-color: #ffffff;
+    background-image:
+      linear-gradient(90deg, rgba(0,0,0,0.1) 1px, transparent 1px),
+      linear-gradient(rgba(0,0,0,0.1) 1px, transparent 1px);
+    background-size: 24px 24px;
+    `}
+`;
+
 export const EditorContainer = styled.div`
   display: flex;
   height: 100vh;
+  background: #f4f4f4;
+  gap: 20px;
   font-family:
     -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", sans-serif;
-  background: #f8fafc;
-`;
-
-export const Sidebar = styled.div`
-  width: 280px;
-  background: #ffffff;
-  border-right: 1px solid #e2e8f0;
-  padding: 20px;
-  box-shadow: 2px 0 4px rgba(0, 0, 0, 0.05);
-`;
-
-export const SidebarSection = styled.div`
-  margin-bottom: 32px;
-
-  h3 {
-    font-size: 16px;
-    font-weight: 600;
-    color: #1a202c;
-    margin-bottom: 16px;
-    padding-bottom: 8px;
-    border-bottom: 2px solid #e2e8f0;
-  }
-`;
-
-export const ShapeGrid = styled.div`
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 12px;
-  margin-bottom: 20px;
-`;
-
-export const ShapeButton = styled.button`
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding: 16px;
-  background: #f7fafc;
-  border: 2px solid #e2e8f0;
-  border-radius: 8px;
-  cursor: pointer;
-  transition: all 0.2s ease;
-
-  &:hover {
-    background: #edf2f7;
-    border-color: #cbd5e0;
-    transform: translateY(-1px);
-  }
-
-  &:active {
-    transform: translateY(0);
-  }
-
-  svg {
-    margin-bottom: 8px;
-  }
-
-  span {
-    font-size: 12px;
-    font-weight: 500;
-    color: #4a5568;
-  }
-`;
-
-export const BooleanOperationsGrid = styled.div`
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 8px;
-`;
-
-export const BooleanButton = styled.button<{ disabled?: boolean }>`
-  padding: 8px 12px;
-  background: ${(props) => (props.disabled ? "#f7fafc" : "#3182ce")};
-  color: ${(props) => (props.disabled ? "#a0aec0" : "#ffffff")};
-  border: none;
-  border-radius: 6px;
-  font-size: 12px;
-  font-weight: 500;
-  cursor: ${(props) => (props.disabled ? "not-allowed" : "pointer")};
-  transition: all 0.2s ease;
-
-  &:hover:not(:disabled) {
-    background: #2c5aa0;
-  }
-
-  &:disabled {
-    opacity: 0.6;
-  }
-`;
-
-export const HistoryControls = styled.div`
-  display: flex;
-  gap: 8px;
-`;
-
-export const HistoryButton = styled.button<{ disabled?: boolean }>`
-  flex: 1;
-  padding: 10px;
-  background: ${(props) => (props.disabled ? "#f7fafc" : "#48bb78")};
-  color: ${(props) => (props.disabled ? "#a0aec0" : "#ffffff")};
-  border: none;
-  border-radius: 6px;
-  font-size: 14px;
-  font-weight: 500;
-  cursor: ${(props) => (props.disabled ? "not-allowed" : "pointer")};
-  transition: all 0.2s ease;
-
-  &:hover:not(:disabled) {
-    background: #38a169;
-  }
-
-  &:disabled {
-    opacity: 0.6;
-  }
-`;
-
-export const Canvas = styled.div`
-  flex: 1;
-  position: relative;
-  background: #2d2a2e;
-  overflow: hidden;
-  cursor: crosshair;
 `;
 
 export const CanvasShape = styled.div<{
@@ -134,8 +36,6 @@ export const CanvasShape = styled.div<{
 }>`
   position: absolute;
   cursor: ${(props) => (props.isDragging ? "grabbing" : "grab")};
-  transition: ${(props) => (props.isDragging ? "none" : "transform 0.1s ease")};
-  transform: ${(props) => (props.selected ? "scale(1.05)" : "scale(1)")};
 
   &::after {
     content: "";
@@ -154,21 +54,6 @@ export const CanvasShape = styled.div<{
   &:hover::after {
     opacity: 1;
   }
-`;
-
-export const StatusBar = styled.div`
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  height: 32px;
-  background: #2d3748;
-  color: #e2e8f0;
-  display: flex;
-  align-items: center;
-  padding: 0 16px;
-  font-size: 12px;
-  gap: 16px;
 `;
 
 export const IntersectionIndicator = styled.div<{ visible: boolean }>`
