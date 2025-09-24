@@ -3,6 +3,17 @@
   "private": true,
   "version": "0.0.0",
   "type": "module",
+  "description": "React + Paper.js demo for Figma-like boolean operations on vector shapes with MobX and Vite.",
+  "keywords": [
+    "react",
+    "paper.js",
+    "boolean operations",
+    "figma",
+    "vector",
+    "mobx",
+    "vite",
+    "typescript"
+  ],
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",

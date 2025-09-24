@@ -1,78 +1,88 @@
-# Porject Prposal:
+## React + Paper.js boolean ops (Figma‑like)
 
-Boolean operations (like it works in Figma)
-https://www.youtube.com/watch?v=1IebN9pTulE
+Live Demo: https://react-paper-js.vercel.app/
 
-Task: Implement the four standard Boolean operations
+This is a small demo that showcases Figma‑style boolean operations on vector shapes using Paper.js, wrapped in a React + MobX state management setup and bundled with Vite. It focuses on the four standard boolean ops between two shapes:
 
-Union
-Subtract
-Intersect
-Exclude
-For 2 SVG shapes using TypeScript and suitable for integration into a MobX-based DOM editor.
+- Union
+- Subtract
+- Intersect
+- Exclude
 
-It should be a reusable module, compatible with React/MobX store usage.
+The module is designed to be reusable in a DOM‑based editor and plays nicely with a MobX store.
 
-Include a short README or code comment block explaining how your solution works, what libraries you used, and any limitations.
+## Tech stack
 
-# Preview URL
+- React (UI)
+- MobX (state management)
+- Paper.js (boolean geometry on paths)
+- styled-components (styling)
+- Vite + TypeScript (build/dev tooling)
 
-# [Preview](https://react-paper-js.vercel.app/)
+## Quick start
 
-# Notes
+1) Install deps
 
-The demo is uses
-
-- MOBX for state management.
-- Styled Components for styling.
-- Paper.js for performing the boolean operations on the shapes.
-- React for UI
-- vite as build tool
-
-It's a rudamentry implementaion of FIGMA like Boolean intersection opreations. But unlike figma it's a DOM based editor.
-
-> # Overview:
-
-When a shape is spawned, it's added to the Dom node as
-
-- This implements a very Simple intersection Logic To
-  check if two shapes are intersecting we check if the bounding boxes of the shapes intersect. If they do intersect we will get the shapes info like size and position and then use paperjs to perform the boolean opreation and create a new shape.
-
-- We only modify the shapes that are selected and are intersecting Even if a shape is selected but not intersecting with any other shape it will not be modified.
-
-- Then we remove the original shapes on which the actions were performed and add the new shape to the DOM.
-
-- This allow us to maintain a simple history of shapes which can be used to undo/redo the operations.
-
-- Modular We can switch the library and the logic used easily currently we use papaer js we pass the shapes to paperjs and return the new shape. If we want to switch to another library we can just change the logic in the `performBooleanOperation` function.
-
-- paper js is pretty efficent and smart at handling the boolean operations. It can scale very well with the number of shapes and the complexity of the shapes.
-
-Workflow
-
-```
--> Add Shapes to dom canvas node
--> Select the shapes to perform boolean operations on
--> Check if the shapes are intersecting using bounding box logic
--> If they are intersecting, if so perform the boolean operation using paperjs
--> Create a new shape with the result of the boolean operation
--> Remove the original shapes from the MOBX store and DOM Update the store with the new shape
--> Add the new shape to the DOM
-
+```bash
+npm install
 ```
 
-> # Limitation:
+2) Start dev server
 
-- Paperjs is not DOM based. So we need to spawn a hidden canvas to use paperjs for the boolean operations. Once the operation.
+```bash
+npm run dev
+```
 
-- Rudimentary Intersection and Bounding Logic :
+3) Build for production
 
-The Assignment was about Performing boolean opreation on Shapes So i am using a very simple bounding box intersection logic to check if two shapes are intersecting and resize the shape accordingly.
+```bash
+npm run build
+```
 
-There can be scenarios where the bounding boxes of two shapes intersect but the shapes themselves do not. This is a limitation of the current simple bounding checks implementation.
+4) Preview local production build
 
-> # Pros
->
-> Paper.js is a powerful library for vector graphics and it handles complex shapes and boolean operations efficiently. It can handle a wide range of shapes and operations, making it suitable for this task.
+```bash
+npm run preview
+```
 
-- The implementation is modular and can be easily extended to support more complex shapes or operations in the future.
+## How it works (high level)
+
+- Shapes are mounted as DOM nodes and mirrored into a hidden Paper.js canvas to run boolean operations accurately and efficiently.
+- A simple bounding‑box intersection check determines if two selected shapes are candidates for a boolean op.
+- On a valid operation, the store removes the original shapes and inserts the resulting path as a new shape, keeping history simple for undo/redo.
+- The boolean algorithm itself is delegated to Paper.js; swapping to a different geometry engine only requires changing the `performBooleanOperation` logic.
+
+### Basic workflow
+
+```
+Add shapes → Select two shapes → Check bbox intersection
+→ Perform boolean op via Paper.js → Create resulting shape
+→ Update MobX store ↔ DOM → Continue editing
+```
+
+## Limitations
+
+- Paper.js runs on a hidden canvas (it’s not DOM‑native). We sync DOM shapes to that canvas to compute results.
+- Bounding‑box checks are coarse. Boxes can intersect when the actual paths don’t; improving this would require per‑path hit tests prior to the boolean op.
+
+## Customization
+
+- Swap geometry engine: replace the Paper.js call inside `performBooleanOperation` with the engine of your choice.
+- Styling: update styled‑components as desired.
+- State: extend MobX stores to support grouping, layers, guides, snapping, etc.
+
+## SEO notes (for this demo)
+
+Basic on‑page SEO is included in `index.html`:
+
+- Descriptive `<title>` and `<meta name="description">`
+- Open Graph + Twitter card tags for link previews
+- Canonical URL and robots hints
+- Optional JSON‑LD structured data for a WebApplication
+
+You can customize these values in `index.html` and add a social image (e.g., `public/og-image.png`) for richer previews.
+
+## Acknowledgements
+
+- Paper.js — https://paperjs.org/
+- Figma boolean ops explainer — https://www.youtube.com/watch?v=1IebN9pTulE
